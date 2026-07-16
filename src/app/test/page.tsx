@@ -1,15 +1,13 @@
-import { prisma } from "@/lib/prisma";
+import { hashPassword } from "@/lib/password";
 
-export default async function TestPage() {
-  const users = await prisma.user.findMany();
+export default async function HashTestPage() {
+  const hash = await hashPassword(
+    "Password123"
+  );
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">
-        Users
-      </h1>
-
-      <pre>{JSON.stringify(users, null, 2)}</pre>
+      <pre>{hash}</pre>
     </div>
   );
 }
