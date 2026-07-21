@@ -85,12 +85,12 @@ model Product {
   slug              String    @unique
 
   shortDescription  String?
-  description       String
+  description       String?
 
   status            ProductStatus @default(DRAFT)
 
-  brandId           String
-  brand             Brand @relation(fields: [brandId], references: [id])
+  brandId           String?
+  brand             Brand? @relation(fields: [brandId], references: [id])
 
   productCategories ProductCategory[]
   variants ProductVariant[]
