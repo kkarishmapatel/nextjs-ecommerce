@@ -93,7 +93,7 @@ model Product {
   brand             Brand @relation(fields: [brandId], references: [id])
 
   productCategories ProductCategory[]
-
+  variants ProductVariant[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -113,4 +113,123 @@ model ProductCategory {
   @@id([productId, categoryId])
 
   @@index([categoryId])
+}
+
+enum InventoryReason {
+  INITIAL_STOCK
+  RESTOCK
+  ORDER
+  RETURN
+  MANUAL_ADJUSTMENT
+}
+
+model ProductVariant {
+  id              String   @id @default(cuid())
+
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  sku             String   @unique
+  barcode         String?
+
+  price           Decimal
+  compareAtPrice  Decimal?
+
+  stock           Int      @default(0)
+
+  weight          Decimal?
+
+  isDefault       Boolean  @default(false)
+
+  images          ProductImage[]
+  inventoryHistory InventoryHistory[]
+  variantAttributes VariantAttributeValue[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model Attribute {
+  id          String   @id @default(cuid())
+
+  name        String
+  slug        String   @unique
+
+  isActive    Boolean  @default(true)
+
+  values      AttributeValue[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AttributeValue {
+  id            String   @id @default(cuid())
+
+  attributeId   String
+  attribute     Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  value         String
+
+  isActive      Boolean @default(true)
+
+  sortOrder     Int @default(0)
+
+  variants      VariantAttributeValue[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([attributeId])
+
+  @@unique([attributeId, value])
+}
+
+model VariantAttributeValue {
+  variantId         String
+  attributeValueId  String
+
+  variant           ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  attributeValue    AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, attributeValueId])
+
+  @@index([attributeValueId])
+}
+
+model ProductImage {
+  id          String   @id @default(cuid())
+
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  url         String
+
+  altText     String?
+
+  sortOrder   Int @default(0)
+
+  createdAt   DateTime @default(now())
+
+  @@index([variantId])
+}
+
+model InventoryHistory {
+  id          String   @id @default(cuid())
+
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  change      Int
+
+  reason      InventoryReason
+
+  note        String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([variantId])
 }
