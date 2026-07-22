@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { generateSlug } from "@/lib/slug";
+
 import {
   createProductSchema,
   CreateProductInput,
