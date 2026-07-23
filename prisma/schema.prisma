@@ -52,6 +52,9 @@ model Brand {
   description String?
   sortOrder   Int      @default(0)
 
+  isDeleted   Boolean  @default(false)
+  deletedAt   DateTime?
+
   products    Product[]
 
   createdAt   DateTime @default(now())
