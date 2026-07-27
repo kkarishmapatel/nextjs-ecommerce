@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-import { createProduct } from "@/actions/product/createProduct";
-
-import ProductBasicInfo from "./ProductBasicInfo";
-import ProductActions from "./ProductActions";
+import { useRouter } from "next/navigation";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,44 +11,79 @@ import {
   type CreateProductInput,
 } from "@/validators/product";
 
+import { createProduct } from "@/actions/product/createProduct";
+
+import ProductBasicInfo from "./ProductBasicInfo";
+import ProductActions from "./ProductActions";
+import { log } from "console";
+
 export default function ProductForm() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
 
-  async function handleSubmit(formData: FormData) {
+  const form = useForm<CreateProductInput>({
+    resolver: zodResolver(createProductSchema),
+
+    mode: "onBlur",
+
+    defaultValues: {
+      name: "",
+      slug: "",
+      shortDescription: "",
+      description: "",
+      brandId: "",
+      status: "DRAFT",
+    },
+  });
+
+  async function onSubmit(values: CreateProductInput) {
     setLoading(true);
     setMessage("");
 
-    const result = await createProduct({
-      name: formData.get("name") as string,
-      slug: formData.get("slug") as string,
-      shortDescription: formData.get("shortDescription") as string,
-      description: formData.get("description") as string,
-    });
+    const result = await createProduct(values);
 
     if (result.success) {
-      setMessage("✅ Product created successfully.");
-    } else {
-      setMessage("❌ Failed to create product.");
-      console.log(result.errors);
+      router.push("/admin/products");
+      return;
     }
+
+    if (result.errors) {
+      Object.entries(result.errors).forEach(([field, errors]) => {
+        if (!errors?.length) return;
+
+        form.setError(field as keyof CreateProductInput, {
+          type: "server",
+          message: errors[0],
+        });
+      });
+    }
+
+    setMessage("❌ Failed to create product.");
 
     setLoading(false);
   }
+  console.log("form slugEdited", slugEdited);
+  // console.log("form setSlugEdited", setSlugEdited);
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-6"
+    >
       <ProductBasicInfo
-        loading={loading}
+        form={form}
         slugEdited={slugEdited}
         setSlugEdited={setSlugEdited}
       />
-
-      <ProductActions loading={loading} />
+      <ProductActions
+        loading={loading}
+      />
 
       {message && (
-        <p className="font-medium">
+        <p className="font-medium text-red-600">
           {message}
         </p>
       )}
