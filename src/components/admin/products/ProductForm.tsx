@@ -15,15 +15,14 @@ import { createProduct } from "@/actions/product/createProduct";
 
 import ProductBasicInfo from "./ProductBasicInfo";
 import ProductActions from "./ProductActions";
-import { log } from "console";
+import type { ProductLookupData } from "@/types/product";
+
 type Props = {
-  brands: {
-    id: string;
-    name: string;
-  }[];
+  lookupData: ProductLookupData;
 };
+
 export default function ProductForm({
-  brands,
+  lookupData,
 }: Props) {
   const router = useRouter();
 
@@ -88,7 +87,7 @@ export default function ProductForm({
         name="brandId"
         label="Brand"
         placeholder="Select a brand"
-        options={brands}
+        options={lookupData.brands}
       />
       <ProductActions
         loading={loading}

@@ -3,7 +3,13 @@ import ProductForm from "@/components/admin/products/ProductForm";
 import { getBrands } from "@/actions/brand/getBrands";
 
 export default async function NewProductPage() {
-  const brands = await getBrands();
+  const [brands] = await Promise.all([
+    getBrands()
+  ]);
+
+  const lookupData = {
+    brands
+  };
 
   return (
     <div className="mx-auto max-w-3xl p-8">
@@ -11,9 +17,7 @@ export default async function NewProductPage() {
         Create Product
       </h1>
 
-      <ProductForm
-        brands={brands}
-      />
+      <ProductForm lookupData={lookupData} />
     </div>
   );
 }
