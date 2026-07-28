@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ProductBrandSelector from "./ProductBrandSelector";
+import EntitySelect from "@/components/common/forms/EntitySelect";
 import {
   createProductSchema,
   type CreateProductInput,
@@ -83,9 +83,12 @@ export default function ProductForm({
         slugEdited={slugEdited}
         setSlugEdited={setSlugEdited}
       />
-      <ProductBrandSelector
+      <EntitySelect
         form={form}
-        brands={brands}
+        name="brandId"
+        label="Brand"
+        placeholder="Select a brand"
+        options={brands}
       />
       <ProductActions
         loading={loading}

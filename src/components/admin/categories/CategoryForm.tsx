@@ -28,13 +28,8 @@ import {
   Textarea,
 } from "@/components/ui/textarea";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
+import EntitySelect from "@/components/common/forms/EntitySelect";
 
 type ParentCategory = {
   id: string;
@@ -185,51 +180,17 @@ export default function CategoryForm({
 
 
       {/* Parent Category */}
-      <div>
-        <Label>
-          Parent Category
-        </Label>
-        <Select
-          value={form.watch("parentId") || "no-parent"}
-          onValueChange={(value) => {
-            form.setValue(
-              "parentId",
-              value === "no-parent" || value === null ? "" : value,
-              {
-                shouldDirty: true,
-                shouldValidate: true,
-              }
-            );
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue>
-              {form.watch("parentId")
-                ? parentCategories.find(
-                  (category) =>
-                    category.id === form.watch("parentId")
-                )?.name
-                : "No Parent"}
-            </SelectValue>
-          </SelectTrigger>
-
-          <SelectContent>
-            <SelectItem value="no-parent">
-              No Parent
-            </SelectItem>
-
-            {parentCategories.map((category) => (
-              <SelectItem
-                key={category.id}
-                value={category.id}
-              >
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-      </div>
+      <EntitySelect
+        form={form}
+        name="parentId"
+        label="Parent Category"
+        placeholder="Select parent category"
+        options={parentCategories}
+        emptyOption={{
+          label: "No Parent",
+          value: "",
+        }}
+      />
 
 
 
