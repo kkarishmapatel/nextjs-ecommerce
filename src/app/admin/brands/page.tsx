@@ -1,22 +1,10 @@
 import Link from "next/link";
 
-import { prisma } from "@/lib/prisma";
+import { getBrands } from "@/actions/brand/getBrands";
 import DeleteBrandButton from "@/components/admin/brands/DeleteBrandButton";
 
 export default async function BrandsPage() {
-  const brands = await prisma.brand.findMany({
-    where: {
-      isDeleted: false,
-    },
-    orderBy: [
-      {
-        sortOrder: "asc",
-      },
-      {
-        name: "asc",
-      },
-    ],
-  });
+  const brands = await getBrands();
 
   return (
     <div className="mx-auto max-w-5xl p-8">

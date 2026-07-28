@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import ProductBrandSelector from "./ProductBrandSelector";
 import {
   createProductSchema,
   type CreateProductInput,
@@ -16,8 +16,15 @@ import { createProduct } from "@/actions/product/createProduct";
 import ProductBasicInfo from "./ProductBasicInfo";
 import ProductActions from "./ProductActions";
 import { log } from "console";
-
-export default function ProductForm() {
+type Props = {
+  brands: {
+    id: string;
+    name: string;
+  }[];
+};
+export default function ProductForm({
+  brands,
+}: Props) {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
@@ -65,8 +72,6 @@ export default function ProductForm() {
 
     setLoading(false);
   }
-  console.log("form slugEdited", slugEdited);
-  // console.log("form setSlugEdited", setSlugEdited);
 
   return (
     <form
@@ -77,6 +82,10 @@ export default function ProductForm() {
         form={form}
         slugEdited={slugEdited}
         setSlugEdited={setSlugEdited}
+      />
+      <ProductBrandSelector
+        form={form}
+        brands={brands}
       />
       <ProductActions
         loading={loading}
