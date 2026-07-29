@@ -1,14 +1,17 @@
 import ProductForm from "@/components/admin/products/ProductForm";
 
 import { getBrands } from "@/actions/brand/getBrands";
+import { getCategories } from "@/actions/category/getCategories";
 
 export default async function NewProductPage() {
-  const [brands] = await Promise.all([
-    getBrands()
+  const [brands, categories] = await Promise.all([
+    getBrands(),
+    getCategories()
   ]);
 
   const lookupData = {
-    brands
+    brands,
+    categories
   };
 
   return (

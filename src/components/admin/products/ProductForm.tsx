@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import EntityMultiSelect from "@/components/common/forms/EntityMultiSelect";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import EntitySelect from "@/components/common/forms/EntitySelect";
@@ -36,13 +36,14 @@ export default function ProductForm({
     mode: "onBlur",
 
     defaultValues: {
-      name: "",
-      slug: "",
-      shortDescription: "",
-      description: "",
-      brandId: "",
-      status: "DRAFT",
-    },
+    name: "",
+    slug: "",
+    shortDescription: "",
+    description: "",
+    brandId: "",
+    status: "DRAFT",
+    categoryIds: [],
+  },
   });
 
   async function onSubmit(values: CreateProductInput) {
@@ -88,6 +89,13 @@ export default function ProductForm({
         label="Brand"
         placeholder="Select a brand"
         options={lookupData.brands}
+      />
+      <EntityMultiSelect
+        form={form}
+        name="categoryIds"
+        label="Categories"
+        options={lookupData.categories}
+        placeholder="Select categories"
       />
       <ProductActions
         loading={loading}

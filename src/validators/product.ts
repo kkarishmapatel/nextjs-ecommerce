@@ -35,14 +35,17 @@ export const createProductSchema = z.object({
     .optional()
     .or(z.literal("")),
 
-  status: z.enum([
+    status: z.enum([
     "DRAFT",
     "ACTIVE",
     "OUT_OF_STOCK",
     "ARCHIVED",
   ]),
+  
+  categoryIds: z
+    .array(z.string())
+    .default([]),
 });
 
-export type CreateProductInput = z.infer<
-  typeof createProductSchema
->;
+export type CreateProductInput =
+  z.infer<typeof createProductSchema>;

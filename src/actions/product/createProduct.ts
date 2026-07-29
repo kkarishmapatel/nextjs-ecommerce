@@ -18,7 +18,14 @@ export async function createProduct(data: CreateProductInput) {
     };
   }
 
-  let { name, slug, shortDescription, description } = validated.data;
+  let {
+    name,
+    slug,
+    description,
+    shortDescription,
+    brandId,
+    categoryIds,
+  } = validated.data;
 
   slug = generateSlug(slug);
 
@@ -41,9 +48,15 @@ export async function createProduct(data: CreateProductInput) {
     data: {
       name,
       slug,
-      shortDescription,
       description,
-      status: "DRAFT",
+      shortDescription,
+      brandId: brandId || null,
+
+      productCategories: {
+        create: categoryIds.map((categoryId) => ({
+          categoryId,
+        })),
+      },
     },
   });
 
