@@ -146,9 +146,19 @@ model ProductVariant {
   price           Decimal
   compareAtPrice  Decimal?
 
+  costPrice       Decimal?
+
   stock           Int      @default(0)
 
+  trackInventory     Boolean  @default(true)
+
+  lowStockThreshold  Int      @default(5)
+
+  allowBackorders    Boolean  @default(false)
+
   weight          Decimal?
+
+  isActive        Boolean  @default(true)
 
   isDefault       Boolean  @default(false)
 
@@ -160,6 +170,7 @@ model ProductVariant {
   updatedAt       DateTime @updatedAt
 
   @@index([productId])
+  @@index([sku])
 }
 
 model Attribute {
@@ -171,7 +182,7 @@ model Attribute {
   isActive    Boolean  @default(true)
 
   values      AttributeValue[]
-
+  sortOrder   Int @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -233,6 +244,9 @@ model InventoryHistory {
 
   variantId   String
   variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  previousStock Int
+  newStock      Int
 
   change      Int
 
