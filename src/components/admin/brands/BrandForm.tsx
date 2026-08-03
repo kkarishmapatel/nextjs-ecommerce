@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { createBrand } from "@/actions/brand/createBrand";
 import { generateSlug } from "@/lib/slug";
+import FormActions from "@/components/common/forms/FormActions";
 
 export default function BrandForm() {
   const router = useRouter();
@@ -116,20 +117,12 @@ export default function BrandForm() {
         />
       </div>
 
-      <button
-        disabled={loading}
-        className="rounded bg-black px-5 py-3 text-white disabled:opacity-50"
-      >
-        {loading
-          ? "Saving..."
-          : "Save Brand"}
-      </button>
-
-      {message && (
-        <p className="font-medium">
-          {message}
-        </p>
-      )}
+      <FormActions
+        loading={loading}
+        submitLabel="Save Brand"
+        message={message}
+        cancelHref="/admin/brands"
+      />
     </form>
   );
 }

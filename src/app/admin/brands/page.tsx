@@ -2,24 +2,26 @@ import Link from "next/link";
 
 import { getBrands } from "@/actions/brand/getBrands";
 import DeleteBrandButton from "@/components/admin/brands/DeleteBrandButton";
+import PageHeader from "@/components/common/layout/PageHeader";
 
 export default async function BrandsPage() {
   const brands = await getBrands();
 
   return (
     <div className="mx-auto max-w-5xl p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">
-          Brands
-        </h1>
 
-        <Link
-          href="/admin/brands/new"
-          className="rounded bg-black px-4 py-2 text-white"
-        >
-          Add Brand
-        </Link>
-      </div>
+      <PageHeader
+        title="Brands"
+        description="Manage your Brands catalog."
+        actions={
+          <Link
+            href="/admin/brands/new"
+            className="rounded bg-black px-4 py-2 text-white"
+          >
+            Add Brand
+          </Link>
+        }
+      />
 
       <div className="overflow-hidden rounded border">
         <table className="w-full">

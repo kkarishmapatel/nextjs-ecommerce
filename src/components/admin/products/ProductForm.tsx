@@ -14,8 +14,9 @@ import {
 import { createProduct } from "@/actions/product/createProduct";
 
 import ProductBasicInfo from "./ProductBasicInfo";
-import ProductActions from "./ProductActions";
 import type { ProductLookupData } from "@/types/product";
+import FormSection from "@/components/common/forms/FormSection";
+import FormActions from "@/components/common/forms/FormActions";
 
 type Props = {
   lookupData: ProductLookupData;
@@ -36,14 +37,14 @@ export default function ProductForm({
     mode: "onBlur",
 
     defaultValues: {
-    name: "",
-    slug: "",
-    shortDescription: "",
-    description: "",
-    brandId: "",
-    status: "DRAFT",
-    categoryIds: [],
-  },
+      name: "",
+      slug: "",
+      shortDescription: "",
+      description: "",
+      brandId: "",
+      status: "DRAFT",
+      categoryIds: [],
+    },
   });
 
   async function onSubmit(values: CreateProductInput) {
@@ -78,34 +79,46 @@ export default function ProductForm({
       onSubmit={form.handleSubmit(onSubmit)}
       className="space-y-6"
     >
-      <ProductBasicInfo
-        form={form}
-        slugEdited={slugEdited}
-        setSlugEdited={setSlugEdited}
-      />
-      <EntitySelect
-        form={form}
-        name="brandId"
-        label="Brand"
-        placeholder="Select a brand"
-        options={lookupData.brands}
-      />
-      <EntityMultiSelect
-        form={form}
-        name="categoryIds"
-        label="Categories"
-        options={lookupData.categories}
-        placeholder="Select categories"
-      />
-      <ProductActions
-        loading={loading}
-      />
 
-      {message && (
-        <p className="font-medium text-red-600">
-          {message}
-        </p>
-      )}
+      <FormSection
+        title="Basic Information"
+        description="General product information."
+      >
+        <ProductBasicInfo
+          form={form}
+          slugEdited={slugEdited}
+          setSlugEdited={setSlugEdited}
+        />
+      </FormSection>
+
+      <FormSection
+        title="Organization"
+        description="Brand and category assignments."
+      >
+        <EntitySelect
+          form={form}
+          name="brandId"
+          label="Brand"
+          placeholder="Select a brand"
+          options={lookupData.brands}
+        />
+        <EntityMultiSelect
+          form={form}
+          name="categoryIds"
+          label="Categories"
+          options={lookupData.categories}
+          placeholder="Select categories"
+        />
+      </FormSection>
+
+
+
+      <FormActions
+        loading={loading}
+        submitLabel="Save Product"
+        message={message}
+        cancelHref="/admin/products"
+      />
     </form>
   );
 }

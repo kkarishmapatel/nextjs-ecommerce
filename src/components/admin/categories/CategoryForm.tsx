@@ -30,6 +30,7 @@ import {
 
 
 import EntitySelect from "@/components/common/forms/EntitySelect";
+import FormActions from "@/components/common/forms/FormActions";
 
 type ParentCategory = {
   id: string;
@@ -252,26 +253,16 @@ export default function CategoryForm({
 
 
 
-      <button
-        disabled={loading}
-        className="rounded bg-black px-5 py-3 text-white disabled:opacity-50"
-      >
-        {loading
-          ? "Saving..."
-          : initialData
+      <FormActions
+        loading={loading}
+        submitLabel={
+          initialData
             ? "Update Category"
-            : "Save Category"}
-      </button>
-
-
-
-      {
-        message && (
-          <p className="font-medium">
-            {message}
-          </p>
-        )
-      }
+            : "Save Category"
+        }
+        message={message}
+        cancelHref="/admin/categories"
+      />
 
 
     </form>
