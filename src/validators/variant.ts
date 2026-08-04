@@ -44,6 +44,9 @@ export const createVariantSchema = z.object({
   isDefault: z.boolean(),
 
   isActive: z.boolean(),
+  selectedAttributes: z
+  .record(z.string(), z.string())
+  .default({}),
 });
 
 export type CreateVariantInput =

@@ -17,16 +17,26 @@ import VariantBasicInfo from "./VariantBasicInfo";
 import VariantPricing from "./VariantPricing";
 import VariantInventory from "./VariantInventory";
 import { useRouter } from "next/navigation";
+import type {
+    AttributeLookup,
+} from "@/types/attribute";
+import VariantAttributes from "./VariantAttributes";
+
 type Props = {
     productId: string;
+    attributes: AttributeLookup[];
 };
-export default function VariantForm({ productId }: Props) {
+
+export default function VariantForm({ productId, attributes }: Props) {
     const [loading, setLoading] =
         useState(false);
     const router = useRouter();
     const [message, setMessage] =
         useState("");
-
+    console.log(
+        "Variant Attributes:",
+        attributes
+    );
     const form =
         useForm<CreateVariantInput>({
             resolver: zodResolver(
@@ -35,26 +45,17 @@ export default function VariantForm({ productId }: Props) {
 
             defaultValues: {
                 sku: "",
-
                 barcode: "",
-
                 price: 0,
-
                 compareAtPrice: null,
-
                 costPrice: null,
-
                 stock: 0,
-
                 trackInventory: true,
-
                 allowBackorders: false,
-
                 lowStockThreshold: 5,
-
                 isDefault: false,
-
                 isActive: true,
+                selectedAttributes: {},
             },
         });
 
@@ -99,6 +100,11 @@ export default function VariantForm({ productId }: Props) {
 
         setLoading(false);
     }
+  
+    console.log(
+        "Variant Form Selected Attributes 2:",
+        form.watch("selectedAttributes")
+    );
 
     return (
         <form
@@ -132,6 +138,12 @@ export default function VariantForm({ productId }: Props) {
                 <VariantInventory
                     form={form}
                 />
+
+                <VariantAttributes
+                    form={form}
+                    attributes={attributes}
+                />
+
             </FormSection>
 
             <FormActions

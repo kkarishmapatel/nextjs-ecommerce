@@ -38,6 +38,7 @@ export async function createVariant(
     lowStockThreshold,
     isDefault,
     isActive,
+    selectedAttributes,
   } = data;
 
   const existing =
@@ -84,6 +85,7 @@ export async function createVariant(
         isDefault,
 
         isActive,
+        selectedAttributes,
       },
     });
 
