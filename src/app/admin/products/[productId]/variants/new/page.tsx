@@ -2,6 +2,7 @@ import VariantForm from "@/components/admin/variants/VariantForm";
 
 import PageHeader from "@/components/common/layout/PageHeader";
 import { getAttributes } from "@/actions/attribute/getAttributes";
+import { getVariantLookupData } from "@/actions/variant/getVariantLookupData";
 type Props = {
   params: Promise<{
     productId: string;
@@ -17,7 +18,7 @@ export default async function NewVariantPage({
 
   const attributes =
     await getAttributes();
-
+const lookupData = await getVariantLookupData();
   return (
     <div className="mx-auto max-w-4xl p-8">
       <PageHeader
@@ -25,10 +26,14 @@ export default async function NewVariantPage({
         description="Add a new product variant."
       />
 
-      <VariantForm
+      {/* <VariantForm
         productId={productId}
         attributes={attributes}
-      />
+      /> */}
+      <VariantForm
+  productId={productId}
+  lookupData={lookupData}
+/>
     </div>
   );
 }

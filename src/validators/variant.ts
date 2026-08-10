@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+const variantAttributeSchema = z.object({
+  attributeId: z.string(),
+
+  attributeValueId: z.string(),
+});
+
 export const createVariantSchema = z.object({
   sku: z
     .string()
@@ -44,9 +50,10 @@ export const createVariantSchema = z.object({
   isDefault: z.boolean(),
 
   isActive: z.boolean(),
+ 
   selectedAttributes: z
-  .record(z.string(), z.string())
-  .default({}),
+  .array(variantAttributeSchema)
+  .default([]),
 });
 
 export type CreateVariantInput =

@@ -41,6 +41,43 @@ export async function createVariant(
     selectedAttributes,
   } = data;
 
+  const attributeValueIds =
+  selectedAttributes
+    .map(
+      (item) => item.attributeValueId
+    )
+    .filter(Boolean);
+
+const attributeValues =
+  await prisma.attributeValue.findMany({
+    where: {
+      id: {
+        in: attributeValueIds,
+      },
+
+      isActive: true,
+    },
+
+    select: {
+      id: true,
+      attributeId: true,
+    },
+  });
+
+if (
+  attributeValues.length !==
+  attributeValueIds.length
+) {
+  return {
+    success: false,
+    errors: {
+      selectedAttributes: [
+        "One or more selected attribute values are invalid.",
+      ],
+    },
+  };
+}
+
   const existing =
     await prisma.productVariant.findUnique({
       where: {
@@ -56,6 +93,28 @@ export async function createVariant(
       },
     };
   }
+
+  const attributeIds =
+  attributeValues.map(
+    (item) => item.attributeId
+  );
+
+const uniqueAttributeIds =
+  new Set(attributeIds);
+
+if (
+  uniqueAttributeIds.size !==
+  attributeIds.length
+) {
+  return {
+    success: false,
+    errors: {
+      selectedAttributes: [
+        "A variant can only have one value per attribute.",
+      ],
+    },
+  };
+}
 
   const variant =
     await prisma.productVariant.create({
@@ -85,7 +144,17 @@ export async function createVariant(
         isDefault,
 
         isActive,
-        selectedAttributes,
+        variantAttributes: {
+          create: selectedAttributes
+            .filter(
+              (item) =>
+                item.attributeValueId
+            )
+            .map((item) => ({
+              attributeValueId:
+                item.attributeValueId,
+            })),
+        },
       },
     });
 

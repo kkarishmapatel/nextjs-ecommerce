@@ -21,4 +21,19 @@ export type VariantListItem = {
   }[];
 };
 
-export type VariantLookupData = {};
+
+export type VariantAttributeLookup = {
+  id: string;
+  name: string;
+
+  values: {
+    id: string;
+    name: string;
+  }[];
+};
+
+export type VariantLookupData = {
+  attributes: VariantAttributeLookup[];
+
+  // keep the other lookup collections
+};

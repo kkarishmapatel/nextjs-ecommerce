@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,44 +20,127 @@ import { useRouter } from "next/navigation";
 import type {
     AttributeLookup,
 } from "@/types/attribute";
+
 import VariantAttributes from "./VariantAttributes";
+import { VariantLookupData } from "@/types/variant";
+import { updateVariant } from "@/actions/variant/updateVariant";
+type VariantInitialData = {
+    id: string;
+
+    productId: string;
+
+    sku: string;
+    barcode: string | null;
+
+    price: string;
+    compareAtPrice: string;
+
+    stock: number;
+
+    weight: string;
+
+    isActive: boolean;
+
+    isDefault: boolean;
+
+    selectedAttributes: {
+        attributeId: string;
+        attributeValueId: string;
+    }[];
+};
 
 type Props = {
     productId: string;
-    attributes: AttributeLookup[];
+
+    lookupData: VariantLookupData;
+
+    initialData?: VariantInitialData;
 };
 
-export default function VariantForm({ productId, attributes }: Props) {
-    const [loading, setLoading] =
-        useState(false);
+export default function VariantForm({ productId, lookupData, initialData }: Props) {
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const [message, setMessage] =
-        useState("");
-    console.log(
-        "Variant Attributes:",
-        attributes
-    );
-    const form =
-        useForm<CreateVariantInput>({
-            resolver: zodResolver(
-                createVariantSchema
-            ),
+    const [message, setMessage] = useState("");
 
-            defaultValues: {
-                sku: "",
-                barcode: "",
-                price: 0,
-                compareAtPrice: null,
-                costPrice: null,
-                stock: 0,
-                trackInventory: true,
-                allowBackorders: false,
-                lowStockThreshold: 5,
-                isDefault: false,
-                isActive: true,
-                selectedAttributes: {},
-            },
-        });
+    const form = useForm<CreateVariantInput>({
+        resolver: zodResolver(createVariantSchema),
+
+        defaultValues: {
+
+            sku:
+                initialData?.sku ?? "",
+
+            barcode:
+                initialData?.barcode ?? "",
+
+            price:
+                initialData
+                    ? Number(initialData.price)
+                    : 0,
+
+            compareAtPrice:
+                initialData?.compareAtPrice
+                    ? Number(
+                        initialData.compareAtPrice
+                    )
+                    : undefined,
+
+            stock:
+                initialData?.stock ?? 0,
+            isActive:
+                initialData?.isActive ?? true,
+
+            isDefault:
+                initialData?.isDefault ?? false,
+
+            selectedAttributes:
+                initialData?.selectedAttributes ?? [],
+        },
+
+
+    });
+
+    useEffect(() => {
+        if (initialData) {
+            form.setValue(
+                "selectedAttributes",
+                lookupData.attributes.map(
+                    (attribute) => {
+                        const existing =
+                            initialData.selectedAttributes.find(
+                                (item) =>
+                                    item.attributeId ===
+                                    attribute.id
+                            );
+
+                        return {
+                            attributeId: attribute.id,
+
+                            attributeValueId:
+                                existing?.attributeValueId ?? "",
+                        };
+                    }
+                )
+            );
+
+            return;
+        }
+
+        form.setValue(
+            "selectedAttributes",
+            lookupData.attributes.map(
+                (attribute) => ({
+                    attributeId: attribute.id,
+                    attributeValueId: "",
+                })
+            )
+        );
+    }, [
+        form,
+        lookupData.attributes,
+        initialData,
+    ]);
+
 
     async function onSubmit(
         values: CreateVariantInput
@@ -65,11 +148,13 @@ export default function VariantForm({ productId, attributes }: Props) {
         setLoading(true);
         setMessage("");
 
-        const result =
-            await createVariant({
+        const result = initialData
+            ? await updateVariant(
+                initialData.id,
                 productId,
-                ...values,
-            });
+                values
+            )
+            : await createVariant({ productId, ...values });
 
         if (result.success) {
             router.push(
@@ -100,7 +185,7 @@ export default function VariantForm({ productId, attributes }: Props) {
 
         setLoading(false);
     }
-  
+
     console.log(
         "Variant Form Selected Attributes 2:",
         form.watch("selectedAttributes")
@@ -114,7 +199,7 @@ export default function VariantForm({ productId, attributes }: Props) {
             className="space-y-6"
         >
             <FormSection
-                title="Basic Information"
+                title="Basic Information testing 2"
                 description="SKU and barcode."
             >
                 <VariantBasicInfo
@@ -141,7 +226,7 @@ export default function VariantForm({ productId, attributes }: Props) {
 
                 <VariantAttributes
                     form={form}
-                    attributes={attributes}
+                    attributes={lookupData.attributes}
                 />
 
             </FormSection>
