@@ -42,11 +42,23 @@ export async function getVariantForEdit(
       variant.compareAtPrice?.toString() ?? "",
 
     stock: variant.stock,
+    costPrice:
+  variant.costPrice?.toString() ?? "",
+
+trackInventory:
+  variant.trackInventory,
+
+lowStockThreshold:
+  variant.lowStockThreshold,
+
+allowBackorders:
+  variant.allowBackorders,
 
     weight:
       variant.weight?.toString() ?? "",
 
     isDefault: variant.isDefault,
+    isActive: variant.isActive,
 
     selectedAttributes:
       variant.variantAttributes.map((item) => ({

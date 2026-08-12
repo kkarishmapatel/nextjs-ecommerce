@@ -7,7 +7,22 @@ export default function LoginPage() {
         Login
       </h1>
 
-      <form action={loginUser} className="space-y-4">
+      <form
+        onSubmit={async (event) => {
+          event.preventDefault();
+
+          const formData = new FormData(
+            event.currentTarget
+          );
+
+          const result = await loginUser(formData);
+
+          if (!result.success) {
+            // handle/display the error here
+            console.error(result.error);
+          }
+        }}
+      >
         <input
           type="email"
           name="email"

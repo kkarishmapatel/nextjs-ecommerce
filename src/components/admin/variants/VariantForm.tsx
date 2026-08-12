@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { z } from "zod";
 import {
     createVariantSchema,
     type CreateVariantInput,
@@ -38,7 +38,10 @@ type VariantInitialData = {
     stock: number;
 
     weight: string;
-
+    costPrice: string;
+    trackInventory: boolean;
+    lowStockThreshold: number;
+    allowBackorders: boolean;
     isActive: boolean;
 
     isDefault: boolean;
@@ -62,43 +65,52 @@ export default function VariantForm({ productId, lookupData, initialData }: Prop
     const router = useRouter();
     const [message, setMessage] = useState("");
 
-    const form = useForm<CreateVariantInput>({
-        resolver: zodResolver(createVariantSchema),
+    const form = useForm<
+    z.input<typeof createVariantSchema>,
+    undefined,
+    z.output<typeof createVariantSchema>
+>({
+    resolver: zodResolver(createVariantSchema),
 
-        defaultValues: {
+    defaultValues: {
+        sku: initialData?.sku ?? "",
+        barcode: initialData?.barcode ?? "",
 
-            sku:
-                initialData?.sku ?? "",
+        price: initialData
+            ? Number(initialData.price)
+            : 0,
 
-            barcode:
-                initialData?.barcode ?? "",
+        compareAtPrice:
+            initialData?.compareAtPrice
+                ? Number(initialData.compareAtPrice)
+                : undefined,
 
-            price:
-                initialData
-                    ? Number(initialData.price)
-                    : 0,
+        costPrice:
+            initialData?.costPrice
+                ? Number(initialData.costPrice)
+                : undefined,
 
-            compareAtPrice:
-                initialData?.compareAtPrice
-                    ? Number(
-                        initialData.compareAtPrice
-                    )
-                    : undefined,
+        stock: initialData?.stock ?? 0,
 
-            stock:
-                initialData?.stock ?? 0,
-            isActive:
-                initialData?.isActive ?? true,
+        trackInventory:
+            initialData?.trackInventory ?? true,
 
-            isDefault:
-                initialData?.isDefault ?? false,
+        lowStockThreshold:
+            initialData?.lowStockThreshold ?? 0,
 
-            selectedAttributes:
-                initialData?.selectedAttributes ?? [],
-        },
+        allowBackorders:
+            initialData?.allowBackorders ?? false,
 
+        isDefault:
+            initialData?.isDefault ?? false,
 
-    });
+        isActive:
+            initialData?.isActive ?? true,
+
+        selectedAttributes:
+            initialData?.selectedAttributes ?? [],
+    },
+});
 
     useEffect(() => {
         if (initialData) {

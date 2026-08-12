@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateCategory } from "@/actions/category/updateCategory";
-
+import { z } from "zod";
 import {
   createCategorySchema,
   type CreateCategoryInput,
@@ -66,18 +66,23 @@ export default function CategoryForm({
   const [loading, setLoading] =
     useState(false);
 
-  const form = useForm<CreateCategoryInput>({
-    resolver: zodResolver(
-      createCategorySchema
-    ),
-    defaultValues: {
-      name: initialData?.name ?? "",
-      slug: initialData?.slug ?? "",
-      description: initialData?.description ?? "",
-      sortOrder: initialData?.sortOrder ?? 0,
-      parentId: initialData?.parentId ?? "",
-    },
-  });
+  const form = useForm<
+  z.input<typeof createCategorySchema>,
+  undefined,
+  z.output<typeof createCategorySchema>
+>({
+  resolver: zodResolver(
+    createCategorySchema
+  ),
+
+  defaultValues: {
+    name: initialData?.name ?? "",
+    slug: initialData?.slug ?? "",
+    description: initialData?.description ?? "",
+    sortOrder: initialData?.sortOrder ?? 0,
+    parentId: initialData?.parentId ?? undefined,
+  },
+});
 
 
   async function onSubmit(

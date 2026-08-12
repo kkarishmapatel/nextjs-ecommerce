@@ -56,5 +56,12 @@ export const createVariantSchema = z.object({
   .default([]),
 });
 
+export type CreateVariantFormInput =
+    z.input<typeof createVariantSchema>;
+
 export type CreateVariantInput =
   z.infer<typeof createVariantSchema>;
+
+  
+  
+

@@ -3,6 +3,7 @@
 import { Controller, UseFormReturn } from "react-hook-form";
 
 import {
+  CreateProductFormInput,
   type CreateProductInput,
 } from "@/validators/product";
 
@@ -14,7 +15,11 @@ import { Label } from "@/components/ui/label";
 
 
 type Props = {
-  form: UseFormReturn<CreateProductInput>;
+  form: UseFormReturn<
+  CreateProductFormInput,
+  undefined,
+  CreateProductInput
+>;
   slugEdited: boolean;
   setSlugEdited: React.Dispatch<
     React.SetStateAction<boolean>

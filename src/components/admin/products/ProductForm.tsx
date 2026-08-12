@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import EntityMultiSelect from "@/components/common/forms/EntityMultiSelect";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import EntitySelect from "@/components/common/forms/EntitySelect";
 import {
+  CreateProductFormInput,
   createProductSchema,
   type CreateProductInput,
 } from "@/validators/product";
@@ -31,8 +33,14 @@ export default function ProductForm({
   const [message, setMessage] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
 
-  const form = useForm<CreateProductInput>({
-    resolver: zodResolver(createProductSchema),
+  const form = useForm<
+  CreateProductFormInput,
+  undefined,
+  CreateProductInput
+>({
+  resolver: zodResolver(
+    createProductSchema
+  ),
 
     mode: "onBlur",
 

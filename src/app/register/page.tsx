@@ -1,13 +1,18 @@
 import { registerUser } from "@/actions/register";
 
 export default function RegisterPage() {
+  async function handleRegister(formData: FormData) {
+    "use server";
+    await registerUser(formData);
+  }
+
   return (
     <div className="max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-6">
         Register
       </h1>
 
-      <form action={registerUser} className="space-y-4">
+      <form action={handleRegister} className="space-y-4">
         <input
           type="text"
           name="name"

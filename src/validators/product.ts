@@ -47,5 +47,8 @@ export const createProductSchema = z.object({
     .default([]),
 });
 
+export type CreateProductFormInput =
+  z.input<typeof createProductSchema>;
+
 export type CreateProductInput =
-  z.infer<typeof createProductSchema>;
+  z.output<typeof createProductSchema>;

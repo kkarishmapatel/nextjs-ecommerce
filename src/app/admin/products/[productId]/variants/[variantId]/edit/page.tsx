@@ -4,6 +4,7 @@ import { getVariantForEdit } from "@/actions/variant/getVariantForEdit";
 import { getVariantLookupData } from "@/actions/variant/getVariantLookupData";
 
 import VariantForm from "@/components/admin/variants/VariantForm";
+import VariantImages from "@/components/admin/variants/VariantImages";
 
 type Props = {
   params: Promise<{
@@ -43,6 +44,10 @@ export default async function EditVariantPage({
         productId={productId}
         lookupData={lookupData}
         initialData={variant}
+      />
+
+      <VariantImages
+        variantId={variantId}
       />
     </div>
   );

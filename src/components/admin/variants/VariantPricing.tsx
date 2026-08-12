@@ -4,11 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import {
+  CreateVariantFormInput,
   CreateVariantInput,
 } from "@/validators/variant";
 
 type Props = {
-  form: UseFormReturn<CreateVariantInput>;
+   form: UseFormReturn<
+    CreateVariantFormInput,
+    undefined,
+    CreateVariantInput
+  >;
 };
 
 export default function VariantPricing({

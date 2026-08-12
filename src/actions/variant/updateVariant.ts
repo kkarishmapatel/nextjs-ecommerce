@@ -25,7 +25,6 @@ export async function updateVariant(
     price,
     compareAtPrice,
     stock,
-    weight,
     isDefault,
     selectedAttributes,
   } = validated.data;
@@ -148,7 +147,6 @@ export async function updateVariant(
           compareAtPrice:
             compareAtPrice ?? null,
           stock,
-          weight: weight ?? null,
           isDefault,
         },
       });

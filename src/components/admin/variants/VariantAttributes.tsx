@@ -9,12 +9,16 @@ import type {
 } from "@/types/variant";
 
 import type {
+  CreateVariantFormInput,
   CreateVariantInput,
 } from "@/validators/variant";
 
 type Props = {
-  form: UseFormReturn<CreateVariantInput>;
-
+   form: UseFormReturn<
+    CreateVariantFormInput,
+    undefined,
+    CreateVariantInput
+  >;
   attributes: VariantAttributeLookup[];
 };
 
