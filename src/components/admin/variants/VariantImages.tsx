@@ -18,7 +18,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { reorderProductImages } from "@/actions/productImage/reorderProductImages";
-
+import { setPrimaryProductImage } from "@/actions/productImage/setPrimaryProductImage";
 type Props = {
     variantId: string;
 };
@@ -116,7 +116,36 @@ export default function VariantImages({
 
         setLoading(false);
     }
+    async function handleSetPrimary(
+        imageId: string
+    ) {
+        if (images[0]?.id === imageId) {
+            return;
+        }
 
+        setLoading(true);
+        setMessage("");
+
+        const result =
+            await setPrimaryProductImage(
+                variantId,
+                imageId
+            );
+
+        if (!result.success) {
+            setMessage(
+                result.error ??
+                "Failed to set primary image."
+            );
+
+            setLoading(false);
+            return;
+        }
+
+        await loadImages();
+
+        setLoading(false);
+    }
     useEffect(() => {
         loadImages();
     }, [variantId]);
@@ -205,15 +234,27 @@ export default function VariantImages({
                                     className="block h-full w-full object-cover"
                                 />
                             </div>
-                            
+
 
                             <p className="truncate text-xs text-muted-foreground">
                                 {image.url}
                             </p>
-                            {image.sortOrder === 0 && (
+                            {image.sortOrder === 0 ? (
                                 <span className="inline-flex rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
                                     Primary
                                 </span>
+                            ) : (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={loading}
+                                    onClick={() =>
+                                        handleSetPrimary(image.id)
+                                    }
+                                >
+                                    Set Primary
+                                </Button>
                             )}
 
                             <div className="flex gap-2">
