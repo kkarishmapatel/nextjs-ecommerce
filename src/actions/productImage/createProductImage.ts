@@ -7,7 +7,7 @@ type CreateProductImageInput = {
 
   url: string;
 
-  altText?: string;
+  altText?: string | null;
 
   sortOrder?: number;
 };

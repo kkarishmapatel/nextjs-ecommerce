@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 // lucide-react icons imported below in a grouped import
-
+import { deleteUploadedProductImage } from "@/actions/productImage/deleteUploadedProductImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +37,15 @@ export default function VariantImages({
         useState(false);
 
     const [message, setMessage] =
+        useState("");
+    const [uploadFile, setUploadFile] =
+        useState<File | null>(null);
+    const [uploadAltText, setUploadAltText] =
+        useState("");
+    const [uploading, setUploading] =
+        useState(false);
+
+    const [uploadedUrl, setUploadedUrl] =
         useState("");
 
     async function loadImages() {
@@ -207,7 +216,93 @@ export default function VariantImages({
 
         setLoading(false);
     }
+    async function handleUpload() {
+        if (!uploadFile) {
+            setMessage("Please select an image.");
+            return;
+        }
 
+        setUploading(true);
+        setMessage("");
+        setUploadedUrl("");
+
+        try {
+            // 1. Upload file
+            const formData = new FormData();
+
+            formData.append("file", uploadFile);
+
+            const uploadResponse = await fetch(
+                "/api/product-images/upload",
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
+
+            const uploadResult =
+                await uploadResponse.json();
+
+            if (
+                !uploadResponse.ok ||
+                !uploadResult.success
+            ) {
+                setMessage(
+                    uploadResult.error ??
+                    "Failed to upload image."
+                );
+
+                return;
+            }
+
+            const imageUrl = uploadResult.url;
+
+            // 2. Create ProductImage record
+            const imageResult =
+                await createProductImage({
+                    variantId,
+                    url: imageUrl,
+                    altText:
+                        uploadAltText.trim() || null,
+                    sortOrder: images.length,
+                });
+
+            if (!imageResult.success) {
+                await deleteUploadedProductImage(
+                    imageUrl
+                );
+
+                setMessage(
+                    imageResult.errors?.url?.[0] ??
+                    "Image uploaded but could not be saved."
+                );
+
+                return;
+            }
+
+            // 3. Refresh images
+            await loadImages();
+
+            setUploadFile(null);
+            setUploadAltText("");
+            setUploadedUrl(imageUrl);
+
+            setMessage(
+                "Image uploaded successfully."
+            );
+        } catch (error) {
+            console.error(
+                "Upload error:",
+                error
+            );
+
+            setMessage(
+                "Something went wrong while uploading."
+            );
+        } finally {
+            setUploading(false);
+        }
+    }
     return (
         <section className="space-y-6">
             <div>
@@ -218,6 +313,60 @@ export default function VariantImages({
                 <p className="text-sm text-muted-foreground">
                     Add and manage images for this variant.
                 </p>
+            </div>
+
+            <div className="space-y-4 rounded-lg border p-4">
+                <div className="space-y-2">
+                    <Label htmlFor="variant-image-upload">
+                        Upload Image
+                    </Label>
+
+                    <Input
+                        id="variant-image-upload"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={(event) => {
+                            setUploadFile(
+                                event.target.files?.[0] ?? null
+                            );
+                        }}
+                    />
+
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="variant-upload-alt">
+                        Alt Text
+                    </Label>
+
+                    <Input
+                        id="variant-upload-alt"
+                        value={uploadAltText}
+                        onChange={(event) =>
+                            setUploadAltText(event.target.value)
+                        }
+                        placeholder="Product image"
+                    />
+                </div>
+
+                <Button
+                    type="button"
+                    disabled={
+                        uploading || !uploadFile
+                    }
+                    onClick={handleUpload}
+                >
+                    {uploading
+                        ? "Uploading..."
+                        : "Upload Image"}
+                </Button>
+
+                {uploadedUrl && (
+                    <p className="text-sm text-green-600">
+                        Upload successful:
+                        {" "}
+                        {uploadedUrl}
+                    </p>
+                )}
             </div>
 
             {images.length > 0 && (
