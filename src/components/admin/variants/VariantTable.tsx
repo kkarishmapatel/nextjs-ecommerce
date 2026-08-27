@@ -85,7 +85,7 @@ export default function VariantTable({
                   : "Inactive"}
               </td>
 
-              <div className="flex gap-2 p-3 justify-end">
+              <td className="flex gap-2 p-3 justify-end">
                 <Link
                   href={`/admin/products/${productId}/variants/${variant.id}`}
                   className="text-sm hover:underline"
@@ -99,7 +99,7 @@ export default function VariantTable({
                 >
                   Edit
                 </Link>
-              </div>
+              </td>
             </tr>
           ))}
 

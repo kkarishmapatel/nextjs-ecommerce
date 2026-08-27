@@ -38,15 +38,23 @@ export async function registerUser(formData: FormData) {
     10
   );
 
-  await prisma.user.create({
-    data: {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      password: hashedPassword,
+  const user = await prisma.user.create({
+  data: {
+    name: parsed.data.name,
+    email: parsed.data.email,
+    password: hashedPassword,
+
+    customer: {
+      create: {},
     },
-  });
+  },
+  include: {
+    customer: true,
+  },
+});
 
   return {
     success: true,
+    user,
   };
 }
