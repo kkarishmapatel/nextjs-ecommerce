@@ -1,4 +1,5 @@
 import Link from "next/link";
+import DeleteCustomerButton from "@/components/admin/customers/DeleteCustomerButton";
 import { prisma } from "@/lib/prisma";
 
 export default async function CustomersPage() {
@@ -23,14 +24,23 @@ export default async function CustomersPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">
-          Customers
-        </h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            Customers
+          </h1>
 
-        <p className="text-sm text-gray-500">
-          Manage your store customers and their addresses.
-        </p>
+          <p className="text-sm text-gray-500">
+            Manage your store customers and their addresses.
+          </p>
+        </div>
+        <Link
+          href="/admin/customers/new"
+          className="rounded bg-black px-4 py-2 text-white"
+        >
+          Add Customer
+
+        </Link>
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
@@ -68,12 +78,28 @@ export default async function CustomersPage() {
                 </td>
 
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/admin/customers/${customer.id}`}
-                    className="underline"
-                  >
-                    View
-                  </Link>
+
+                  
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/admin/customers/${customer.id}`}
+                      className="rounded-md border px-3 py-1 text-sm"
+                    >
+                      View
+                    </Link>
+
+                    <Link
+                      href={`/admin/customers/${customer.id}/edit`}
+                      className="rounded-md border px-3 py-1 text-sm"
+                    >
+                      Edit
+                    </Link>
+
+                    <DeleteCustomerButton
+                      customerId={customer.id}
+                      customerName={customer.user.name}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

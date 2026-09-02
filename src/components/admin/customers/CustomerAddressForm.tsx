@@ -103,7 +103,10 @@ export default function CustomerAddressForm({
                 );
 
             if (!result.success) {
-                setError(result.error);
+                setError(
+                    result.error ??
+                        "Failed to save address."
+                );
 
                 if (result.fieldErrors) {
                     setFieldErrors(

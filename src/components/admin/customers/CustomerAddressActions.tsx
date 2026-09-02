@@ -48,7 +48,9 @@ export default function CustomerAddressActions({
         );
 
       if (!result.success) {
-        setError(result.error);
+        setError(
+          result.error ?? "Failed to delete address."
+        );
         return;
       }
 
@@ -76,7 +78,9 @@ export default function CustomerAddressActions({
         );
 
       if (!result.success) {
-        setError(result.error);
+        setError(
+          result.error ?? "Failed to set default address."
+        );
         return;
       }
 

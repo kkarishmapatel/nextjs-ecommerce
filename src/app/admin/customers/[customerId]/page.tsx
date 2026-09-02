@@ -45,21 +45,30 @@ export default async function CustomerDetailPage({
 
     return (
         <div className="space-y-6 p-6">
-            <div>
+            <Link
+                href="/admin/customers"
+                className="text-sm underline"
+            >
+                ← Back to Customers
+            </Link>
+            <div className="flex items-center justify-between">
+                <div>
+
+                    <h1 className="text-2xl font-semibold">
+                        {customer.user.name}
+                    </h1>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        {customer.user.email}
+                    </p>
+                </div>
+
                 <Link
-                    href="/admin/customers"
-                    className="text-sm underline"
+                    href={`/admin/customers/${customer.id}/edit`}
+                    className="rounded-md border px-4 py-2 text-sm font-medium"
                 >
-                    ← Back to Customers
+                    Edit Customer
                 </Link>
-
-                <h1 className="mt-3 text-2xl font-semibold">
-                    {customer.user.name}
-                </h1>
-
-                <p className="text-sm text-gray-500">
-                    {customer.user.email}
-                </p>
             </div>
 
             <section className="space-y-4">
