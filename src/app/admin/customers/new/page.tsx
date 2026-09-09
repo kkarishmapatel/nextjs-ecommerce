@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import CustomerForm from "@/components/admin/customers/CustomerForm";

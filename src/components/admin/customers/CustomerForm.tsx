@@ -96,9 +96,7 @@ export default function CustomerForm({
           `/admin/customers/${customer.id}`
         );
       } else {
-        router.push(
-          `/admin/customers/${result.customer?.id}`
-        );
+        router.push("/admin/customers");
       }
 
       router.refresh();
