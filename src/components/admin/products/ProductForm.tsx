@@ -50,7 +50,7 @@ export default function ProductForm({
       shortDescription: "",
       description: "",
       brandId: "",
-      status: "DRAFT",
+      status: "ACTIVE",
       categoryIds: [],
     },
   });

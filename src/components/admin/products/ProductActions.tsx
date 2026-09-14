@@ -10,7 +10,7 @@ export default function ProductActions({
       disabled={loading}
       className="rounded bg-black px-6 py-3 text-white"
     >
-      {loading ? "Saving..." : "Save Draft"}
+      {loading ? "Saving..." : "Save ACTIVE"}
     </button>
   );
 }
