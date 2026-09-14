@@ -1,9 +1,56 @@
+import { prisma } from "@/lib/prisma";
+
 import { getStorefrontProducts } from "@/lib/products/getStorefrontProducts";
 import ProductCard from "@/components/storefront/ProductCard";
+import ShopFilters from "@/components/storefront/ShopFilters";
 
-export default async function ShopPage() {
-  const products =
-    await getStorefrontProducts();
+type ShopPageProps = {
+  searchParams: Promise<{
+    category?: string;
+    brand?: string;
+    sort?: string;
+  }>;
+};
+
+export default async function ShopPage({
+  searchParams,
+}: ShopPageProps) {
+  const params = await searchParams;
+
+  const [products, categories, brands] =
+    await Promise.all([
+      getStorefrontProducts({
+        category: params.category,
+        brand: params.brand,
+        sort: params.sort,
+      }),
+
+      prisma.category.findMany({
+        where: {
+          isDeleted: false,
+        },
+        select: {
+          name: true,
+          slug: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      }),
+
+      prisma.brand.findMany({
+        where: {
+          isDeleted: false,
+        },
+        select: {
+          name: true,
+          slug: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      }),
+    ]);
 
   return (
     <main className="mx-auto max-w-7xl space-y-8 p-6">
@@ -17,10 +64,15 @@ export default async function ShopPage() {
         </p>
       </div>
 
+      <ShopFilters
+        categories={categories}
+        brands={brands}
+      />
+
       {products.length === 0 ? (
         <div className="rounded-lg border p-8 text-center">
           <p className="text-gray-500">
-            No products available.
+            No products found.
           </p>
         </div>
       ) : (
