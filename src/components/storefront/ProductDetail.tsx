@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { addToCart } from "@/actions/cart/addToCart";
 
 type ProductDetailProps = {
   product: {
@@ -19,8 +20,8 @@ type ProductDetailProps = {
     variants: {
       id: string;
       sku: string;
-      price: unknown;
-      compareAtPrice: unknown;
+      price: number;
+      compareAtPrice: number | null;
       stock: number;
       trackInventory: boolean;
       allowBackorders: boolean;
@@ -60,7 +61,12 @@ export default function ProductDetail({
 
   const [selectedVariantId, setSelectedVariantId] =
     useState(defaultVariant?.id);
-
+  const [isAddingToCart, setIsAddingToCart] =
+    useState(false);
+  const [selectedImageId, setSelectedImageId] =
+    useState<string | null>(null);
+  const [cartMessage, setCartMessage] =
+    useState<string | null>(null);
   const selectedVariant =
     product.variants.find(
       (variant) =>
@@ -153,51 +159,60 @@ export default function ProductDetail({
       attributeValueId
     );
 
-    const matchingVariant =
-      product.variants.find(
-        (variant) => {
-          const variantAttributes =
-            new Map<
-              string,
-              string
-            >();
+    // First, try to find an exact variant
+    // matching all selected attributes.
+    const exactVariant = product.variants.find(
+      (variant) => {
+        const variantAttributes = new Map<
+          string,
+          string
+        >();
 
-          for (const item of variant.variantAttributes) {
-            variantAttributes.set(
-              item.attributeValue
-                .attribute.id,
-              item.attributeValue.id
-            );
-          }
+        for (const item of variant.variantAttributes) {
+          variantAttributes.set(
+            item.attributeValue.attribute.id,
+            item.attributeValue.id
+          );
+        }
 
+        if (
+          variantAttributes.size !==
+          currentSelections.size
+        ) {
+          return false;
+        }
+
+        for (const [key, value] of currentSelections) {
           if (
-            variantAttributes.size !==
-            currentSelections.size
+            variantAttributes.get(key) !== value
           ) {
             return false;
           }
-
-          for (const [
-            key,
-            value,
-          ] of currentSelections) {
-            if (
-              variantAttributes.get(
-                key
-              ) !== value
-            ) {
-              return false;
-            }
-          }
-
-          return true;
         }
+
+        return true;
+      }
+    );
+
+    if (exactVariant) {
+      setSelectedVariantId(exactVariant.id);
+      return;
+    }
+
+    // If the exact combination doesn't exist,
+    // find the first variant containing the
+    // newly selected attribute value.
+    const fallbackVariant =
+      product.variants.find((variant) =>
+        variant.variantAttributes.some(
+          (item) =>
+            item.attributeValue.id ===
+            attributeValueId
+        )
       );
 
-    if (matchingVariant) {
-      setSelectedVariantId(
-        matchingVariant.id
-      );
+    if (fallbackVariant) {
+      setSelectedVariantId(fallbackVariant.id);
     }
   }
 
@@ -208,30 +223,69 @@ export default function ProductDetail({
   const compareAtPrice =
     selectedVariant?.compareAtPrice
       ? Number(
-          selectedVariant.compareAtPrice
-        )
+        selectedVariant.compareAtPrice
+      )
       : null;
 
   const hasStock = selectedVariant
     ? selectedVariant.stock > 0 ||
-      selectedVariant.allowBackorders
+    selectedVariant.allowBackorders
     : false;
 
   const images =
-    selectedVariant?.images ??
-    [];
+    selectedVariant?.images ?? [];
+
+  useEffect(() => {
+    setSelectedImageId(
+      images[0]?.id ?? null
+    );
+  }, [selectedVariantId]);
+
+  async function handleAddToCart() {
+    if (!selectedVariant) {
+      return;
+    }
+
+    setIsAddingToCart(true);
+    setCartMessage(null);
+
+    const result = await addToCart(
+      selectedVariant.id,
+      1
+    );
+
+    if (result.success) {
+      setCartMessage(
+        "Product added to cart."
+      );
+    } else {
+      setCartMessage(
+        result.error ??
+        "Failed to add product to cart."
+      );
+    }
+
+    setIsAddingToCart(false);
+  }
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       {/* Images */}
       <div>
         <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
-          {images[0] ? (
+          {images.length > 0 ? (
             <Image
-              src={images[0].url}
+              src={
+                images.find(
+                  (image) =>
+                    image.id === selectedImageId
+                )?.url ?? images[0].url
+              }
               alt={
-                images[0].altText ??
-                product.name
+                images.find(
+                  (image) =>
+                    image.id === selectedImageId
+                )?.altText ?? product.name
               }
               fill
               className="object-cover"
@@ -243,24 +297,38 @@ export default function ProductDetail({
           )}
         </div>
 
-        {images.length > 1 && (
+        {images.length > 0 && (
           <div className="mt-4 grid grid-cols-4 gap-3">
-            {images.map((image) => (
-              <div
-                key={image.id}
-                className="relative aspect-square overflow-hidden rounded-md border"
-              >
-                <Image
-                  src={image.url}
-                  alt={
-                    image.altText ??
-                    product.name
+            {images.map((image) => {
+              const isSelected =
+                image.id === selectedImageId ||
+                (!selectedImageId &&
+                  image.id === images[0].id);
+
+              return (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedImageId(image.id)
                   }
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ))}
+                  className={`relative aspect-square overflow-hidden rounded-md border-2 ${isSelected
+                    ? "border-black"
+                    : "border-gray-200"
+                    }`}
+                >
+                  <Image
+                    src={image.url}
+                    alt={
+                      image.altText ??
+                      product.name
+                    }
+                    fill
+                    className="object-cover"
+                  />
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
@@ -329,11 +397,10 @@ export default function ProductDetail({
                                 value.id
                               )
                             }
-                            className={`rounded-md border px-4 py-2 text-sm ${
-                              isSelected
-                                ? "border-black bg-black text-white"
-                                : "hover:bg-gray-100"
-                            }`}
+                            className={`rounded-md border px-4 py-2 text-sm ${isSelected
+                              ? "border-black bg-black text-white"
+                              : "hover:bg-gray-100"
+                              }`}
                           >
                             {value.value}
                           </button>
@@ -353,7 +420,7 @@ export default function ProductDetail({
             {hasStock ? (
               <p className="text-sm text-green-600">
                 {selectedVariant.stock >
-                0
+                  0
                   ? `In stock (${selectedVariant.stock} available)`
                   : "Available for backorder"}
               </p>
@@ -386,13 +453,28 @@ export default function ProductDetail({
         )}
 
         {/* Add to cart placeholder */}
-        <button
-          type="button"
-          disabled={!selectedVariant || !hasStock}
-          className="w-full rounded-md bg-black px-6 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300"
-        >
-          Add to Cart
-        </button>
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={
+              !selectedVariant ||
+              !hasStock ||
+              isAddingToCart
+            }
+            className="w-full rounded-md bg-black px-6 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+          >
+            {isAddingToCart
+              ? "Adding..."
+              : "Add to Cart"}
+          </button>
+
+          {cartMessage && (
+            <p className="text-sm text-gray-600">
+              {cartMessage}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

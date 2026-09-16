@@ -55,17 +55,25 @@ export default function CustomerForm({
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
   } = form;
 
-  async function onSubmit(
-    data: CreateCustomerInput | UpdateCustomerInput
+  async function handleFormSubmit(
+    event: React.FormEvent<HTMLFormElement>
   ) {
+    event.preventDefault();
+
     setServerError(null);
     setIsSubmitting(true);
 
     try {
+      const data = await form.trigger();
+
+      if (!data) {
+        return;
+      }
+
+      const values = form.getValues();
       let result;
 
       if (isEditMode) {
@@ -76,10 +84,12 @@ export default function CustomerForm({
 
         result = await updateCustomer(
           customer.id,
-          data
+          values as UpdateCustomerInput
         );
       } else {
-        result = await createCustomer(data);
+        result = await createCustomer(
+          values as CreateCustomerInput
+        );
       }
 
       if (!result.success) {
@@ -96,7 +106,9 @@ export default function CustomerForm({
           `/admin/customers/${customer.id}`
         );
       } else {
-        router.push("/admin/customers");
+        router.push(
+          `/admin/customers/${result.customer?.id}`
+        );
       }
 
       router.refresh();
@@ -116,7 +128,7 @@ export default function CustomerForm({
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleFormSubmit}
       className="space-y-6"
     >
       {serverError && (

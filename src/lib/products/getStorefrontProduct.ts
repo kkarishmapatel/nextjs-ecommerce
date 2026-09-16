@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getStorefrontProduct(slug: string) {
+export async function getStorefrontProduct(
+  slug: string
+) {
   const product = await prisma.product.findFirst({
     where: {
       slug,
@@ -70,5 +72,36 @@ export async function getStorefrontProduct(slug: string) {
     },
   });
 
-  return product;
+  if (!product) {
+    return null;
+  }
+
+  return {
+    ...product,
+
+    variants: product.variants.map(
+      (variant) => ({
+        ...variant,
+
+        price: Number(variant.price),
+
+        compareAtPrice:
+          variant.compareAtPrice !== null
+            ? Number(
+                variant.compareAtPrice
+              )
+            : null,
+
+        costPrice:
+          variant.costPrice !== null
+            ? Number(variant.costPrice)
+            : null,
+
+        weight:
+          variant.weight !== null
+            ? Number(variant.weight)
+            : null,
+      })
+    ),
+  };
 }

@@ -18,7 +18,7 @@ export async function getStorefrontProducts(
   const products = await prisma.product.findMany({
     where: {
       status: {
-        in: ["ACTIVE", "OUT_OF_STOCK","DRAFT"],
+        in: ["ACTIVE", "OUT_OF_STOCK"],
       },
 
       ...(brand
