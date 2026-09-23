@@ -55,24 +55,24 @@ export default function ProductForm({
 
     defaultValues: product
       ? {
-          name: product.name,
-          slug: product.slug,
-          shortDescription:
-            product.shortDescription ?? "",
-          description: product.description ?? "",
-          brandId: product.brandId ?? "",
-          status: product.status,
-          categoryIds: product.categoryIds,
-        }
+        name: product.name,
+        slug: product.slug,
+        shortDescription:
+          product.shortDescription ?? "",
+        description: product.description ?? "",
+        brandId: product.brandId ?? "",
+        status: product.status,
+        categoryIds: product.categoryIds,
+      }
       : {
-          name: "",
-          slug: "",
-          shortDescription: "",
-          description: "",
-          brandId: "",
-          status: "ACTIVE",
-          categoryIds: [],
-        },
+        name: "",
+        slug: "",
+        shortDescription: "",
+        description: "",
+        brandId: "",
+        status: "ACTIVE",
+        categoryIds: [],
+      },
   });
 
   async function onSubmit(
@@ -81,44 +81,53 @@ export default function ProductForm({
     setLoading(true);
     setMessage("");
 
-    const result = isEditMode
-      ? await updateProduct(product.id, values)
-      : await createProduct(values);
+    try {
+      const result = isEditMode
+        ? await updateProduct(product.id, values)
+        : await createProduct(values);
 
-    if (result.success) {
-      router.push("/admin/products");
-      router.refresh();
-      return;
-    }
+      if (result.success) {
+        router.push("/admin/products");
+        return;
+      }
 
-    if (result.errors) {
-      Object.entries(result.errors).forEach(
-        ([field, errors]) => {
-          if (!errors?.length) return;
+      if (result.errors) {
+        Object.entries(result.errors).forEach(
+          ([field, errors]) => {
+            if (!errors?.length) return;
 
-          if (field === "_form") {
-            setMessage(errors[0]);
-            return;
-          }
-
-          form.setError(
-            field as keyof CreateProductInput,
-            {
-              type: "server",
-              message: errors[0],
+            if (field === "_form") {
+              setMessage(errors[0]);
+              return;
             }
-          );
-        }
+
+            form.setError(
+              field as keyof CreateProductInput,
+              {
+                type: "server",
+                message: errors[0],
+              }
+            );
+          }
+        );
+      }
+
+      setMessage(
+        isEditMode
+          ? "Failed to update product."
+          : "Failed to create product."
       );
+    } catch (error) {
+      console.error(error);
+
+      setMessage(
+        isEditMode
+          ? "Failed to update product."
+          : "Failed to create product."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    setMessage(
-      isEditMode
-        ? "Failed to update product."
-        : "Failed to create product."
-    );
-
-    setLoading(false);
   }
 
   return (
