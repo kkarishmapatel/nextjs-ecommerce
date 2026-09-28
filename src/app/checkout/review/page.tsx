@@ -23,7 +23,8 @@ export default async function CheckoutReviewPage() {
         </h1>
 
         <p className="mt-2 text-sm text-gray-600">
-          Review your shipping address and order details before placing your order.
+          Review your shipping address and order details
+          before placing your order.
         </p>
       </div>
 
@@ -32,21 +33,13 @@ export default async function CheckoutReviewPage() {
         cart={checkoutData.cart}
       />
 
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-8">
         <Link
           href="/checkout"
           className="text-sm font-medium underline"
         >
           Back to Checkout
         </Link>
-
-        <button
-          type="button"
-          disabled
-          className="rounded-md bg-gray-300 px-6 py-3 text-sm font-medium text-gray-600"
-        >
-          Place Order
-        </button>
       </div>
     </main>
   );

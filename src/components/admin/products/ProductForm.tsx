@@ -82,7 +82,7 @@ export default function ProductForm({
     setMessage("");
 
     try {
-      const result = isEditMode
+      const result = product
         ? await updateProduct(product.id, values)
         : await createProduct(values);
 
