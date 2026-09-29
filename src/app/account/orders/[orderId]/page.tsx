@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { getCurrentCustomer } from "@/lib/customers/getCurrentCustomer";
+import CancelOrderButton from "@/components/account/orders/CancelOrderButton";
 import { prisma } from "@/lib/prisma";
 
 type OrderDetailsPageProps = {
@@ -54,9 +55,15 @@ export default async function OrderDetailsPage({
           </p>
         </div>
 
-        <span className="w-fit rounded-full bg-gray-100 px-4 py-2 text-sm font-medium">
-          {order.status}
-        </span>
+        <div>
+          <span className="w-fit rounded-full bg-gray-100 px-4 py-2 text-sm font-medium">
+            {order.status}
+          </span>
+          {(order.status === "PENDING" ||
+            order.status === "CONFIRMED") && (
+              <CancelOrderButton orderId={order.id} />
+            )}
+        </div>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-3">
@@ -92,7 +99,7 @@ export default async function OrderDetailsPage({
                             (attribute, index) => {
                               if (
                                 typeof attribute !==
-                                  "object" ||
+                                "object" ||
                                 attribute === null
                               ) {
                                 return null;
@@ -101,15 +108,15 @@ export default async function OrderDetailsPage({
                               const name =
                                 "attribute" in attribute
                                   ? String(
-                                      attribute.attribute
-                                    )
+                                    attribute.attribute
+                                  )
                                   : "";
 
                               const value =
                                 "value" in attribute
                                   ? String(
-                                      attribute.value
-                                    )
+                                    attribute.value
+                                  )
                                   : "";
 
                               return (

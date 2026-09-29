@@ -79,10 +79,7 @@ export async function createOrder(addressId: string) {
     const variant = item.variant;
     const product = variant.product;
 
-    if (
-      product.status !== "ACTIVE" &&
-      product.status !== "OUT_OF_STOCK"
-    ) {
+    if (product.status !== "ACTIVE") {
       return {
         success: false,
         error: `"${product.name}" is not available for purchase.`,
