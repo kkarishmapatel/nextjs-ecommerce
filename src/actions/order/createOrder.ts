@@ -197,37 +197,40 @@ export async function createOrder(addressId: string) {
        * 4. Decrease inventory
        */
       for (const item of cart.items) {
-        const variant = item.variant;
+        const variant = await tx.productVariant.findUnique({
+          where: {
+            id: item.variantId,
+          },
+        });
+
+        if (!variant) {
+          throw new Error("Product variant not found.");
+        }
 
         if (!variant.trackInventory) {
           continue;
         }
 
-        /*
-         * Atomic stock update.
-         *
-         * This prevents the stock from going below the requested
-         * quantity when inventory is being tracked.
-         */
+        const previousStock = variant.stock;
+
         if (!variant.allowBackorders) {
-          const updatedVariant =
-            await tx.productVariant.updateMany({
-              where: {
-                id: variant.id,
-                stock: {
-                  gte: item.quantity,
-                },
+          const updatedVariant = await tx.productVariant.updateMany({
+            where: {
+              id: variant.id,
+              stock: {
+                gte: item.quantity,
               },
-              data: {
-                stock: {
-                  decrement: item.quantity,
-                },
+            },
+            data: {
+              stock: {
+                decrement: item.quantity,
               },
-            });
+            },
+          });
 
           if (updatedVariant.count !== 1) {
             throw new Error(
-              `"${variant.product.name}" (${variant.sku}) is out of stock.`
+              `"${item.variant.product.name}" (${variant.sku}) is out of stock.`
             );
           }
         } else {
@@ -243,14 +246,11 @@ export async function createOrder(addressId: string) {
           });
         }
 
-        /*
-         * Inventory history
-         */
         await tx.inventoryHistory.create({
           data: {
             variantId: variant.id,
-            previousStock: variant.stock,
-            newStock: variant.stock - item.quantity,
+            previousStock,
+            newStock: previousStock - item.quantity,
             change: -item.quantity,
             reason: "ORDER",
             note: `Order ${createdOrder.orderNumber}`,
