@@ -227,5 +227,13 @@ async function handleCheckoutCompleted(
         paymentStatus: "PAID",
       },
     });
+
+    await tx.cartItem.deleteMany({
+      where: {
+        cart: {
+          customerId: order.customerId,
+        },
+      },
+    });
   });
 }
