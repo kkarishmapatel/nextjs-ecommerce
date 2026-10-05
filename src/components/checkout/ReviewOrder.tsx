@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCheckout } from "@/components/checkout/CheckoutProvider";
-import { createOrder } from "@/actions/order/createOrder";
+import { createCheckoutSession } from "@/actions/payment/createCheckoutSession";
 
 type Address = {
   id: string;
@@ -80,16 +80,19 @@ export default function ReviewOrder({
     setError("");
 
     try {
-      const result = await createOrder(selectedAddressId);
+      const result = await createCheckoutSession(selectedAddressId);
 
       if (!result.success) {
-        setError(result.error ?? "Failed to place order.");
+        setError(result.error ?? "Unable to start payment.");
         return;
       }
 
-      router.push(
-        `/order/success/${result.orderId}`
-      );
+      if (!result.checkoutUrl) {
+        setError("Unable to start payment.");
+        return;
+      }
+
+      window.location.href = result.checkoutUrl;
     } catch (error) {
       console.error("Place order failed:", error);
 
@@ -260,7 +263,7 @@ export default function ReviewOrder({
           disabled={loading}
           className="rounded-md bg-black px-6 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
         >
-          {loading ? "Placing Order..." : "Place Order"}
+          {loading ? "Redirecting to Stripe..." : "Pay with Stripe"}
         </button>
       </div>
     </>

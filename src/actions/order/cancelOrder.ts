@@ -46,7 +46,10 @@ export async function cancelOrder(orderId: string) {
       };
     }
 
-    if (order.status !== "PENDING" && order.status !== "CONFIRMED") {
+    if (
+      order.status !== "PENDING" &&
+      order.status !== "CONFIRMED"
+    ) {
       return {
         success: false,
         error: "This order can no longer be cancelled.",
@@ -79,46 +82,54 @@ export async function cancelOrder(orderId: string) {
         throw new Error("This order can no longer be cancelled.");
       }
 
-      for (const item of currentOrder.items) {
-        if (!item.variantId) {
-          continue;
-        }
+      // Stripe pending orders have not deducted inventory yet.
+      // Inventory should only be restored after successful payment.
+      const shouldRestoreInventory =
+        currentOrder.paymentStatus === "PAID" ||
+        currentOrder.status === "CONFIRMED";
 
-        const variant = await tx.productVariant.findUnique({
-          where: {
-            id: item.variantId,
-          },
-        });
+      if (shouldRestoreInventory) {
+        for (const item of currentOrder.items) {
+          if (!item.variantId) {
+            continue;
+          }
 
-        if (!variant) {
-          continue;
-        }
-
-        if (!variant.trackInventory) {
-          continue;
-        }
-
-        await tx.productVariant.update({
-          where: {
-            id: variant.id,
-          },
-          data: {
-            stock: {
-              increment: item.quantity,
+          const variant = await tx.productVariant.findUnique({
+            where: {
+              id: item.variantId,
             },
-          },
-        });
+          });
 
-        await tx.inventoryHistory.create({
-          data: {
-            variantId: variant.id,
-            previousStock: variant.stock,
-            newStock: variant.stock + item.quantity,
-            change: item.quantity,
-            reason: "RETURN",
-            note: `Order ${currentOrder.orderNumber} cancelled`,
-          },
-        });
+          if (!variant) {
+            continue;
+          }
+
+          if (!variant.trackInventory) {
+            continue;
+          }
+
+          await tx.productVariant.update({
+            where: {
+              id: variant.id,
+            },
+            data: {
+              stock: {
+                increment: item.quantity,
+              },
+            },
+          });
+
+          await tx.inventoryHistory.create({
+            data: {
+              variantId: variant.id,
+              previousStock: variant.stock,
+              newStock: variant.stock + item.quantity,
+              change: item.quantity,
+              reason: "RETURN",
+              note: `Order ${currentOrder.orderNumber} cancelled`,
+            },
+          });
+        }
       }
 
       await tx.order.update({
