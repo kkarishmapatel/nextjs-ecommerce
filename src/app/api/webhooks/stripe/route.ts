@@ -54,6 +54,14 @@ export async function POST(request: Request) {
         break;
       }
 
+      case "checkout.session.expired": {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        await handleCheckoutExpired(session);
+
+        break;
+      }
+
       default:
         console.log(`Unhandled Stripe event: ${event.type}`);
     }
@@ -233,6 +241,67 @@ async function handleCheckoutCompleted(
         cart: {
           customerId: order.customerId,
         },
+      },
+    });
+  });
+}
+
+async function handleCheckoutExpired(
+  session: Stripe.Checkout.Session
+) {
+  const orderId = session.metadata?.orderId;
+  const paymentId = session.metadata?.paymentId;
+
+  if (!orderId || !paymentId) {
+    console.log(
+      `Expired Checkout Session ${session.id} is missing application metadata.`
+    );
+
+    return;
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: { payments: true },
+    });
+
+    if (!order) {
+      console.log(`Order ${orderId} not found for expired Checkout Session.`);
+      return;
+    }
+
+    const payment = order.payments.find(
+      (item) => item.id === paymentId
+    );
+
+    if (!payment) {
+      console.log(`Payment ${paymentId} not found.`);
+      return;
+    }
+
+    // Do not change an order that has already been paid.
+    if (payment.status === "PAID") {
+      return;
+    }
+
+    // Make this operation idempotent.
+    if (payment.status === "FAILED") {
+      return;
+    }
+
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "FAILED",
+      },
+    });
+
+    await tx.order.update({
+      where: { id: order.id },
+      data: {
+        status: "CANCELLED",
+        paymentStatus: "FAILED",
       },
     });
   });
