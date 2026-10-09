@@ -70,10 +70,26 @@ export default async function ShopPage({
       />
 
       {products.length === 0 ? (
-        <div className="rounded-lg border p-8 text-center">
-          <p className="text-gray-500">
-            No products found.
+        <div className="rounded-2xl border border-dashed px-6 py-16 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-2xl">
+            <span aria-hidden="true">⌕</span>
+          </div>
+
+          <h2 className="mt-5 text-xl font-semibold text-gray-900">
+            No products found
+          </h2>
+
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
+            Try changing your category or brand filters to
+            discover more products.
           </p>
+
+          <a
+            href="/shop"
+            className="mt-6 inline-flex rounded-lg bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
+          >
+            Browse all products
+          </a>
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

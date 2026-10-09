@@ -25,7 +25,7 @@ export default async function AccountPage() {
       </div>
 
       {/* Customer Information */}
-      <section className="rounded-lg border p-6">
+      <section className="rounded-xl border bg-white p-5 shadow-sm sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">
@@ -39,7 +39,7 @@ export default async function AccountPage() {
 
           <Link
             href="/account/profile"
-            className="rounded-md border px-4 py-2 text-sm"
+            className="rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-gray-50"
           >
             Edit Profile
           </Link>
@@ -69,7 +69,7 @@ export default async function AccountPage() {
       </section>
 
       {/* Addresses */}
-      <section className="rounded-lg border p-6">
+      <section className="rounded-xl border bg-white p-5 shadow-sm sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">
@@ -84,7 +84,7 @@ export default async function AccountPage() {
 
           <Link
             href="/account/addresses"
-            className="rounded-md border px-4 py-2 text-sm"
+            className="rounded-lg border px-4 py-2 text-sm font-medium transition hover:bg-gray-50"
           >
             Manage Addresses
           </Link>

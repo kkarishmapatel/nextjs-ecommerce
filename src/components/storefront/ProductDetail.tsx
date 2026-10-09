@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import { addToCart } from "@/actions/cart/addToCart";
 
 type ProductDetailProps = {
@@ -61,12 +62,16 @@ export default function ProductDetail({
 
   const [selectedVariantId, setSelectedVariantId] =
     useState(defaultVariant?.id);
+
   const [isAddingToCart, setIsAddingToCart] =
     useState(false);
+
   const [selectedImageId, setSelectedImageId] =
     useState<string | null>(null);
+
   const [cartMessage, setCartMessage] =
     useState<string | null>(null);
+
   const selectedVariant =
     product.variants.find(
       (variant) =>
@@ -127,10 +132,7 @@ export default function ProductDetail({
   }, [product.variants]);
 
   const selectedAttributes = useMemo(() => {
-    const map = new Map<
-      string,
-      string
-    >();
+    const map = new Map<string, string>();
 
     if (!selectedVariant) {
       return map;
@@ -161,8 +163,8 @@ export default function ProductDetail({
 
     // First, try to find an exact variant
     // matching all selected attributes.
-    const exactVariant = product.variants.find(
-      (variant) => {
+    const exactVariant =
+      product.variants.find((variant) => {
         const variantAttributes = new Map<
           string,
           string
@@ -191,8 +193,7 @@ export default function ProductDetail({
         }
 
         return true;
-      }
-    );
+      });
 
     if (exactVariant) {
       setSelectedVariantId(exactVariant.id);
@@ -222,18 +223,22 @@ export default function ProductDetail({
 
   const compareAtPrice =
     selectedVariant?.compareAtPrice
-      ? Number(
-        selectedVariant.compareAtPrice
-      )
+      ? Number(selectedVariant.compareAtPrice)
       : null;
 
   const hasStock = selectedVariant
     ? selectedVariant.stock > 0 ||
-    selectedVariant.allowBackorders
+      selectedVariant.allowBackorders
     : false;
 
   const images =
     selectedVariant?.images ?? [];
+
+  const selectedImage =
+    images.find(
+      (image) =>
+        image.id === selectedImageId
+    ) ?? images[0];
 
   useEffect(() => {
     setSelectedImageId(
@@ -261,7 +266,7 @@ export default function ProductDetail({
     } else {
       setCartMessage(
         result.error ??
-        "Failed to add product to cart."
+          "Failed to add product to cart."
       );
     }
 
@@ -269,53 +274,50 @@ export default function ProductDetail({
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
-      {/* Images */}
+    <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
+      {/* Product images */}
       <div>
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
-          {images.length > 0 ? (
+        <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
+          {selectedImage ? (
             <Image
-              src={
-                images.find(
-                  (image) =>
-                    image.id === selectedImageId
-                )?.url ?? images[0].url
-              }
+              src={selectedImage.url}
               alt={
-                images.find(
-                  (image) =>
-                    image.id === selectedImageId
-                )?.altText ?? product.name
+                selectedImage.altText ??
+                product.name
               }
               fill
-              className="object-cover"
+              priority
+              className="object-cover transition duration-300"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-gray-500">
+            <div className="flex h-full items-center justify-center text-sm text-gray-500">
               No image
             </div>
           )}
         </div>
 
         {images.length > 0 && (
-          <div className="mt-4 grid grid-cols-4 gap-3">
+          <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
             {images.map((image) => {
               const isSelected =
-                image.id === selectedImageId ||
-                (!selectedImageId &&
-                  image.id === images[0].id);
+                image.id ===
+                selectedImageId;
 
               return (
                 <button
                   key={image.id}
                   type="button"
                   onClick={() =>
-                    setSelectedImageId(image.id)
+                    setSelectedImageId(
+                      image.id
+                    )
                   }
-                  className={`relative aspect-square overflow-hidden rounded-md border-2 ${isSelected
-                    ? "border-black"
-                    : "border-gray-200"
-                    }`}
+                  aria-label={`View ${product.name} image`}
+                  className={`relative aspect-square overflow-hidden rounded-lg border-2 transition ${
+                    isSelected
+                      ? "border-black"
+                      : "border-gray-200 hover:border-gray-400"
+                  }`}
                 >
                   <Image
                     src={image.url}
@@ -324,7 +326,7 @@ export default function ProductDetail({
                       product.name
                     }
                     fill
-                    className="object-cover"
+                    className="object-cover transition duration-200 hover:scale-105"
                   />
                 </button>
               );
@@ -334,126 +336,111 @@ export default function ProductDetail({
       </div>
 
       {/* Product information */}
-      <div className="space-y-6">
+      <div className="flex flex-col">
         {product.brand && (
-          <p className="text-sm text-gray-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
             {product.brand.name}
           </p>
         )}
 
-        <div>
-          <h1 className="text-3xl font-semibold">
-            {product.name}
-          </h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">
+          {product.name}
+        </h1>
 
-          {product.shortDescription && (
-            <p className="mt-3 text-gray-600">
-              {product.shortDescription}
-            </p>
-          )}
-        </div>
+        {product.shortDescription && (
+          <p className="mt-4 text-base leading-7 text-gray-600">
+            {product.shortDescription}
+          </p>
+        )}
 
         {/* Price */}
-        <div className="flex items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           {price !== null && (
-            <span className="text-2xl font-semibold">
+            <span className="text-2xl font-semibold text-gray-900">
               ₹{price.toFixed(2)}
             </span>
           )}
 
           {compareAtPrice !== null &&
-            compareAtPrice > price! && (
-              <span className="text-lg text-gray-400 line-through">
-                ₹{compareAtPrice.toFixed(2)}
-              </span>
+            price !== null &&
+            compareAtPrice > price && (
+              <>
+                <span className="text-base text-gray-400 line-through">
+                  ₹{compareAtPrice.toFixed(2)}
+                </span>
+
+                <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                  Sale
+                </span>
+              </>
             )}
         </div>
 
         {/* Variant selectors */}
         {attributeGroups.length > 0 && (
-          <div className="space-y-5">
-            {attributeGroups.map(
-              (group) => (
-                <div key={group.id}>
-                  <p className="mb-2 text-sm font-medium">
-                    {group.name}
-                  </p>
+          <div className="mt-8 space-y-6 border-t pt-6">
+            {attributeGroups.map((group) => (
+              <div key={group.id}>
+                <p className="mb-3 text-sm font-semibold text-gray-900">
+                  {group.name}
+                </p>
 
-                  <div className="flex flex-wrap gap-2">
-                    {group.values.map(
-                      (value) => {
-                        const isSelected =
-                          selectedAttributes.get(
-                            group.id
-                          ) === value.id;
+                <div className="flex flex-wrap gap-2">
+                  {group.values.map((value) => {
+                    const isSelected =
+                      selectedAttributes.get(
+                        group.id
+                      ) === value.id;
 
-                        return (
-                          <button
-                            key={value.id}
-                            type="button"
-                            onClick={() =>
-                              selectAttribute(
-                                group.id,
-                                value.id
-                              )
-                            }
-                            className={`rounded-md border px-4 py-2 text-sm ${isSelected
-                              ? "border-black bg-black text-white"
-                              : "hover:bg-gray-100"
-                              }`}
-                          >
-                            {value.value}
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
+                    return (
+                      <button
+                        key={value.id}
+                        type="button"
+                        onClick={() =>
+                          selectAttribute(
+                            group.id,
+                            value.id
+                          )
+                        }
+                        className={`rounded-lg border px-4 py-2.5 text-sm font-medium transition ${
+                          isSelected
+                            ? "border-black bg-black text-white"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-gray-500 hover:bg-gray-50"
+                        }`}
+                      >
+                        {value.value}
+                      </button>
+                    );
+                  })}
                 </div>
-              )
-            )}
+              </div>
+            ))}
           </div>
         )}
 
-        {/* Stock */}
+        {/* Stock + SKU */}
         {selectedVariant && (
-          <div>
+          <div className="mt-6 space-y-3">
             {hasStock ? (
-              <p className="text-sm text-green-600">
-                {selectedVariant.stock >
-                  0
+              <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
+                {selectedVariant.stock > 0
                   ? `In stock (${selectedVariant.stock} available)`
                   : "Available for backorder"}
-              </p>
+              </span>
             ) : (
-              <p className="text-sm text-red-600">
+              <span className="inline-flex rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
                 Out of stock
-              </p>
+              </span>
             )}
+
+            <p className="text-xs text-gray-500">
+              SKU: {selectedVariant.sku}
+            </p>
           </div>
         )}
 
-        {/* SKU */}
-        {selectedVariant && (
-          <p className="text-sm text-gray-500">
-            SKU: {selectedVariant.sku}
-          </p>
-        )}
-
-        {/* Description */}
-        {product.description && (
-          <div className="border-t pt-6">
-            <h2 className="font-medium">
-              Description
-            </h2>
-
-            <div className="mt-3 whitespace-pre-line text-sm leading-6 text-gray-600">
-              {product.description}
-            </div>
-          </div>
-        )}
-
-        {/* Add to cart placeholder */}
-        <div className="space-y-3">
+        {/* Add to cart */}
+        <div className="mt-6 border-t pt-6">
           <button
             type="button"
             onClick={handleAddToCart}
@@ -462,7 +449,7 @@ export default function ProductDetail({
               !hasStock ||
               isAddingToCart
             }
-            className="w-full rounded-md bg-black px-6 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+            className="w-full rounded-lg bg-black px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             {isAddingToCart
               ? "Adding..."
@@ -470,11 +457,31 @@ export default function ProductDetail({
           </button>
 
           {cartMessage && (
-            <p className="text-sm text-gray-600">
+            <p
+              className={`mt-3 rounded-md px-3 py-2 text-sm ${
+                cartMessage ===
+                "Product added to cart."
+                  ? "bg-green-50 text-green-700"
+                  : "bg-red-50 text-red-700"
+              }`}
+            >
               {cartMessage}
             </p>
           )}
         </div>
+
+        {/* Description */}
+        {product.description && (
+          <div className="mt-8 border-t pt-6">
+            <h2 className="text-base font-semibold text-gray-900">
+              Description
+            </h2>
+
+            <div className="mt-3 whitespace-pre-line text-sm leading-7 text-gray-600">
+              {product.description}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

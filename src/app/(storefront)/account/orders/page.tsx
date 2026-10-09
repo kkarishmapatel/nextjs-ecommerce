@@ -40,18 +40,22 @@ export default async function OrdersPage() {
       </div>
 
       {orders.length === 0 ? (
-        <div className="mt-10 rounded-lg border p-8 text-center">
-          <h2 className="text-lg font-semibold">
+        <div className="mt-10 rounded-2xl border border-dashed px-6 py-16 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-2xl">
+            <span aria-hidden="true">▤</span>
+          </div>
+
+          <h2 className="mt-5 text-xl font-semibold text-gray-900">
             No orders yet
           </h2>
 
-          <p className="mt-2 text-sm text-gray-600">
-            You haven't placed any orders yet.
+          <p className="mt-2 text-sm text-gray-500">
+            Your orders will appear here when you make your first purchase.
           </p>
 
           <Link
             href="/shop"
-            className="mt-6 inline-block rounded-md bg-black px-6 py-3 text-sm font-medium text-white"
+            className="mt-6 inline-flex rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
           >
             Start Shopping
           </Link>

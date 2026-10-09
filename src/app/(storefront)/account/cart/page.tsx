@@ -7,27 +7,37 @@ export default async function CartPage() {
   const cart = await getCurrentCart();
 
   if (!cart || cart.items.length === 0) {
-    return (
-      <main className="mx-auto max-w-5xl p-6">
-        <div className="py-20 text-center">
-          <h1 className="text-3xl font-semibold">
-            Your Cart
-          </h1>
-
-          <p className="mt-3 text-gray-600">
-            Your cart is empty.
-          </p>
-
-          <Link
-            href="/shop"
-            className="mt-6 inline-block rounded-md bg-black px-6 py-3 text-sm font-medium text-white"
-          >
-            Continue Shopping
-          </Link>
+  return (
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+      <div className="rounded-2xl border border-dashed px-6 py-16 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+          <span aria-hidden="true" className="text-2xl">
+            🛒
+          </span>
         </div>
-      </main>
-    );
-  }
+
+        <h1 className="mt-5 text-3xl font-semibold text-gray-900">
+          Your Cart
+        </h1>
+
+        <p className="mt-3 text-gray-600">
+          Your cart is empty.
+        </p>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Explore our products and find something you love.
+        </p>
+
+        <Link
+          href="/shop"
+          className="mt-7 inline-flex rounded-lg bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
+        >
+          Continue Shopping
+        </Link>
+      </div>
+    </main>
+  );
+}
 
   return (
     <main className="mx-auto max-w-5xl p-6">
