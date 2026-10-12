@@ -1,49 +1,25 @@
-import { registerUser } from "@/actions/register";
+import Link from "next/link";
+
+import RegisterForm from "@/components/auth/RegisterForm";
 
 export default function RegisterPage() {
-  async function handleRegister(formData: FormData) {
-    "use server";
-    await registerUser(formData);
-  }
-
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-6">
+    <div className="mx-auto mt-10 max-w-md">
+      <h1 className="mb-6 text-2xl font-bold">
         Register
       </h1>
 
-      <form action={handleRegister} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          className="border p-2 w-full"
-          required
-        />
+      <RegisterForm />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="border p-2 w-full"
-          required
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="border p-2 w-full"
-          required
-        />
-
-        <button
-          type="submit"
-          className="border px-4 py-2"
+      <p className="mt-6 text-sm text-gray-600">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="font-medium text-gray-900 underline"
         >
-          Register
-        </button>
-      </form>
+          Login here
+        </Link>
+      </p>
     </div>
   );
 }

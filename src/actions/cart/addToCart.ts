@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { prisma } from "@/lib/prisma";
 import { getCurrentCustomer } from "@/lib/customers/getCurrentCustomer";
 
@@ -124,6 +126,9 @@ export async function addToCart(
         },
       });
     }
+
+    revalidatePath("/");
+    revalidatePath("/account/cart");
 
     return {
       success: true,

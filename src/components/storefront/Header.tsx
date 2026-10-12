@@ -33,7 +33,7 @@ export default async function Header() {
 
           {customer ? (
             <Link
-              href="/account/orders"
+              href="/account"
               className="text-sm font-medium text-gray-700 hover:text-gray-900"
             >
               Account

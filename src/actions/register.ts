@@ -1,10 +1,19 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
+
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/validators/auth";
 
-export async function registerUser(formData: FormData) {
+export type RegisterState = {
+  error: string | null;
+};
+
+export async function registerUser(
+  _previousState: RegisterState,
+  formData: FormData
+): Promise<RegisterState> {
   const data = {
     name: formData.get("name"),
     email: formData.get("email"),
@@ -15,8 +24,9 @@ export async function registerUser(formData: FormData) {
 
   if (!parsed.success) {
     return {
-      success: false,
-      error: parsed.error.issues[0]?.message,
+      error:
+        parsed.error.issues[0]?.message ??
+        "Please check your registration details.",
     };
   }
 
@@ -28,7 +38,6 @@ export async function registerUser(formData: FormData) {
 
   if (existingUser) {
     return {
-      success: false,
       error: "Email already exists",
     };
   }
@@ -38,23 +47,16 @@ export async function registerUser(formData: FormData) {
     10
   );
 
-  const user = await prisma.user.create({
-  data: {
-    name: parsed.data.name,
-    email: parsed.data.email,
-    password: hashedPassword,
-
-    customer: {
-      create: {},
+  await prisma.user.create({
+    data: {
+      name: parsed.data.name,
+      email: parsed.data.email,
+      password: hashedPassword,
+      customer: {
+        create: {},
+      },
     },
-  },
-  include: {
-    customer: true,
-  },
-});
+  });
 
-  return {
-    success: true,
-    user,
-  };
+  redirect("/login?registered=1");
 }

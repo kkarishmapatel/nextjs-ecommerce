@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { prisma } from "@/lib/prisma";
 import { getCurrentCustomer } from "@/lib/customers/getCurrentCustomer";
 
@@ -74,6 +76,9 @@ export async function updateCartItemQuantity(
         quantity,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/account/cart");
 
     return {
       success: true,

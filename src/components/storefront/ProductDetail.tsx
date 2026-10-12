@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { addToCart } from "@/actions/cart/addToCart";
 
@@ -63,6 +63,8 @@ export default function ProductDetail({
   const [selectedVariantId, setSelectedVariantId] =
     useState(defaultVariant?.id);
 
+  const [quantity, setQuantity] = useState(1);
+
   const [isAddingToCart, setIsAddingToCart] =
     useState(false);
 
@@ -77,6 +79,13 @@ export default function ProductDetail({
       (variant) =>
         variant.id === selectedVariantId
     ) ?? defaultVariant;
+
+  const maxQuantity =
+    selectedVariant &&
+    selectedVariant.trackInventory &&
+    !selectedVariant.allowBackorders
+      ? selectedVariant.stock
+      : 99;
 
   const attributeGroups = useMemo(() => {
     const groups = new Map<
@@ -196,7 +205,7 @@ export default function ProductDetail({
       });
 
     if (exactVariant) {
-      setSelectedVariantId(exactVariant.id);
+      selectVariant(exactVariant.id);
       return;
     }
 
@@ -213,7 +222,7 @@ export default function ProductDetail({
       );
 
     if (fallbackVariant) {
-      setSelectedVariantId(fallbackVariant.id);
+      selectVariant(fallbackVariant.id);
     }
   }
 
@@ -240,11 +249,24 @@ export default function ProductDetail({
         image.id === selectedImageId
     ) ?? images[0];
 
-  useEffect(() => {
-    setSelectedImageId(
-      images[0]?.id ?? null
+  function selectVariant(variantId: string) {
+    setSelectedVariantId(variantId);
+    setSelectedImageId(null);
+    setQuantity(1);
+  }
+
+  function updateQuantity(nextQuantity: number) {
+    if (!selectedVariant) {
+      return;
+    }
+
+    const adjustedQuantity = Math.min(
+      Math.max(1, nextQuantity),
+      maxQuantity
     );
-  }, [selectedVariantId]);
+
+    setQuantity(adjustedQuantity);
+  }
 
   async function handleAddToCart() {
     if (!selectedVariant) {
@@ -256,7 +278,7 @@ export default function ProductDetail({
 
     const result = await addToCart(
       selectedVariant.id,
-      1
+      quantity
     );
 
     if (result.success) {
@@ -439,8 +461,48 @@ export default function ProductDetail({
           </div>
         )}
 
-        {/* Add to cart */}
+        {/* Quantity + Add to cart */}
         <div className="mt-6 border-t pt-6">
+          <div className="mb-4 flex items-center justify-between gap-4 rounded-xl border bg-gray-50 px-3 py-3">
+            <span className="text-sm font-medium text-gray-700">
+              Quantity
+            </span>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  updateQuantity(quantity - 1)
+                }
+                disabled={
+                  quantity <= 1 ||
+                  isAddingToCart
+                }
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-lg text-gray-700 transition hover:border-gray-500 disabled:cursor-not-allowed disabled:text-gray-300"
+              >
+                −
+              </button>
+
+              <span className="min-w-8 text-center text-sm font-medium text-gray-900">
+                {quantity}
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  updateQuantity(quantity + 1)
+                }
+                disabled={
+                  quantity >= maxQuantity ||
+                  isAddingToCart
+                }
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-300 bg-white text-lg text-gray-700 transition hover:border-gray-500 disabled:cursor-not-allowed disabled:text-gray-300"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={handleAddToCart}
@@ -453,7 +515,7 @@ export default function ProductDetail({
           >
             {isAddingToCart
               ? "Adding..."
-              : "Add to Cart"}
+              : `Add to Cart (${quantity})`}
           </button>
 
           {cartMessage && (
