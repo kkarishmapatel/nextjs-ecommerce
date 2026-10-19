@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -20,6 +21,7 @@
     "next": "16.2.10",
     "pg": "^8.22.0",
     "prisma": "^7.8.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.82.0",

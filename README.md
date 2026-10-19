@@ -16,6 +16,18 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Authenticator two-factor authentication
+
+Customer and administrator accounts require authenticator setup by default. On the first sign-in after this feature is deployed, the user scans a QR code and verifies a six-digit code before a database session is created. Users can disable 2FA in Security settings after reauthenticating with their password and a current authenticator or backup code.
+
+Configure `TOTP_ENCRYPTION_KEY` as a base64-encoded 32-byte key in every environment. Generate one with:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
+```
+
+Keep this key stable and back it up in your secrets manager. TOTP secrets are encrypted with AES-256-GCM; backup codes are stored only as SHA-256 hashes. Losing the key makes saved TOTP secrets unreadable.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

@@ -97,6 +97,31 @@ export default async function AccountPage() {
               </div>
             </article>
 
+            {/* Security */}
+            <article className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-xl">
+                <span aria-hidden="true">🔐</span>
+              </div>
+
+              <h3 className="mt-5 text-lg font-semibold text-gray-900">
+                Sign-in Security
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-gray-600">
+                Manage your authenticator app and one-time backup codes.
+              </p>
+
+              <div className="mt-auto pt-6">
+                <Link
+                  href="/security"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-gray-900 transition hover:text-gray-600"
+                >
+                  Manage Security
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </article>
+
             {/* Orders */}
             <article className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 text-xl">

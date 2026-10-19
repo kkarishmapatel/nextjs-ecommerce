@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   House,
+  KeyRound,
   ShieldCheck,
   ShoppingCart,
   Store,
@@ -16,6 +17,7 @@ const navigation: { label: string; href: string; icon: LucideIcon }[] = [
   { label: "Dashboard", href: "/dashboard", icon: House },
   { label: "Shop", href: "/shop", icon: Store },
   { label: "Account", href: "/account", icon: UserRound },
+  { label: "Security", href: "/security", icon: KeyRound },
   { label: "Orders", href: "/account/orders", icon: ClipboardList },
   { label: "Cart", href: "/account/cart", icon: ShoppingCart },
 ];
